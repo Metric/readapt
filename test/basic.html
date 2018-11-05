@@ -1,0 +1,26 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>basic test</title>
+  <meta name="description" content="basic input test">
+  <meta name="author" content="Flix">
+  <style rel="stylesheet">
+      .active {
+          background-color: red;
+      }
+      .inactive {
+          background-color: lightgray;
+      }
+  </style>
+</head>
+<body>
+  <div class="app">
+      <div><form><input type="text" placeholder="search..." value=""><label><input type="checkbox">Only show products in stock</label></form><table><thead><tr><td>Name</td><td>Price</td></tr></thead><tbody><tr><th colspan="2">Sporting Goods</th></tr><tr><td>Football</td><td>$49.99</td></tr><tr><td>Baseball</td><td>$9.99</td></tr><tr><td><span style="color: red">Basketball</span></td><td>$29.99</td></tr><tr><th colspan="2">Electronics</th></tr><tr><td>iPod Touch</td><td>$99.99</td></tr><tr><td><span style="color: red">iPhone 5</span></td><td>$399.99</td></tr><tr><td>Nexus 7</td><td>$199.99</td></tr></tbody></table></div>
+    </div>
+  <script src="../dist/readapt.min.js"></script>
+  <script src="./basic.js"></script>
+</body>
+</html>
