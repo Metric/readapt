@@ -19,11 +19,11 @@ export const inputs : any = [
 export let hydrating = false;
 export let diffLevel = 0;
 
-export function diff(dom: any, node: VNode, parent: any, root: boolean) {
+export async function diff(dom: any, node: VNode, parentComponent: any, parent: any, root: boolean) {
     let ret : any = null;
     if(!diffLevel++) hydrating = dom && !dom[ATTR_KEY];
 
-    ret = idiff(dom, node, parent, root);
+    ret = await idiff(dom, node, parentComponent, parent, root);
     if(parent && ret.parentNode !== parent) parent.appendChild(ret);
 
     if(!--diffLevel) {
@@ -33,7 +33,7 @@ export function diff(dom: any, node: VNode, parent: any, root: boolean) {
     return ret;
 }
 
-function idiff(dom: any, node: VNode, parent: any, root: boolean) {
+async function idiff(dom: any, node: VNode, parentComponent: any, parent: any, root: boolean) {
     let out : any = dom;
     if(node.nodeValue == null || typeof node.nodeValue === 'boolean') node.nodeValue = '';
     if(node.nodeType === 'text') {
@@ -44,8 +44,7 @@ function idiff(dom: any, node: VNode, parent: any, root: boolean) {
             out = DOM.document.createTextNode(node.nodeValue);
             if(dom) {
                 if(dom.parentNode) dom.parentNode.replaceChild(out, dom);
-                //recollectNodeTree
-                recollectNodeTree(dom, false);
+                await recollectNodeTree(dom, false);
             }
         }
 
@@ -54,7 +53,7 @@ function idiff(dom: any, node: VNode, parent: any, root: boolean) {
     }
 
     let nodeName : any = node.nodeName, nroot;
-    if(typeof nodeName === 'function') return buildComponent(dom, node, parent);
+    if(typeof nodeName === 'function') return await buildComponent(dom, node, parentComponent, parent);
     if(!dom || dom.nodeName.toLowerCase() !== nodeName.toLowerCase()) {
         out = createNode(nodeName);
         if(dom) {
@@ -62,7 +61,7 @@ function idiff(dom: any, node: VNode, parent: any, root: boolean) {
             if(dom.parentNode) dom.parentNode.replaceChild(out, dom);
 
             //recollect
-            recollectNodeTree(dom, false);
+            await recollectNodeTree(dom, false);
         }
     }
     let props : any = out[ATTR_KEY];
@@ -72,14 +71,14 @@ function idiff(dom: any, node: VNode, parent: any, root: boolean) {
     }
 
     let fc = out.firstChild, children = node.childNodes;
-    if(children.length || fc) innerDiffNode(out, children, root);
+    if((children && children.length) || fc) await innerDiffNode(out, children, parentComponent, root);
 
     diffAttributes(out, node.attributes, props);
 
     return out;
 }
 
-function innerDiffNode(dom, vchildren: Array<VNode>, root: boolean) {
+async function innerDiffNode(dom, vchildren: Array<VNode>, parentComponent: any, root: boolean) {
 	let originalChildren = dom.childNodes,
 		children = Array<any>(),
 		keyed = {},
@@ -134,7 +133,7 @@ function innerDiffNode(dom, vchildren: Array<VNode>, root: boolean) {
 			}
 
 			// morph the matched/found/created DOM child to match vchild (deep)
-			child = idiff(child, vchild, dom, root);
+			child = await idiff(child, vchild, parentComponent, dom, root);
 
 			f = originalChildren[i];
 			if (child && child!==dom && child!==f) {
@@ -154,29 +153,29 @@ function innerDiffNode(dom, vchildren: Array<VNode>, root: boolean) {
 
 	// remove unused keyed children:
 	if (keyedLen) {
-		for (let i in keyed) if (keyed[i]!==undefined) recollectNodeTree(keyed[i], false);
+		for (let i in keyed) if (keyed[i]!==undefined) await recollectNodeTree(keyed[i], false);
 	}
 
 	// remove orphaned unkeyed children:
 	while (min<=childrenLen) {
-		if ((child = children[childrenLen--])!==undefined) recollectNodeTree(child, false);
+		if ((child = children[childrenLen--])!==undefined) await recollectNodeTree(child, false);
 	}
 }
 
-export function recollectNodeTree(node: any, unmountOnly: boolean) {
+export async function recollectNodeTree(node: any, unmountOnly: boolean) {
     if(!node) return;
     let component = node._component;
-    if(component) unmountComponent(component);
+    if(component) await unmountComponent(component);
     if(node[ATTR_KEY] && node[ATTR_KEY].ref) node[ATTR_KEY].ref(null);
     if(unmountOnly === false || node[ATTR_KEY]) removeNode(node);
-    removeChildren(node);
+    await removeChildren(node);
 }
 
-export function removeChildren(node: any) {
+export async function removeChildren(node: any) {
     node = node.lastChild;
     while(node) {
         let next = node.previousSibling;
-        recollectNodeTree(node, true);
+        await recollectNodeTree(node, true);
         node = next;
     }
 }
