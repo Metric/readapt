@@ -19,11 +19,11 @@ export const inputs : any = [
 export let hydrating = false;
 export let diffLevel = 0;
 
-export async function diff(dom: any, node: VNode, parentComponent: any, parent: any, root: boolean) {
+export async function diff(dom: any, node: VNode, parent: any, root: boolean) {
     let ret : any = null;
     if(!diffLevel++) hydrating = dom && !dom[ATTR_KEY];
 
-    ret = await idiff(dom, node, parentComponent, parent, root);
+    ret = await idiff(dom, node, parent, root);
     if(parent && ret.parentNode !== parent) parent.appendChild(ret);
 
     if(!--diffLevel) {
@@ -33,7 +33,7 @@ export async function diff(dom: any, node: VNode, parentComponent: any, parent: 
     return ret;
 }
 
-async function idiff(dom: any, node: VNode, parentComponent: any, parent: any, root: boolean) {
+async function idiff(dom: any, node: VNode, parent: any, root: boolean) {
     let out : any = dom;
     if(node.nodeValue == null || typeof node.nodeValue === 'boolean') node.nodeValue = '';
     if(node.nodeType === 'text') {
@@ -53,7 +53,7 @@ async function idiff(dom: any, node: VNode, parentComponent: any, parent: any, r
     }
 
     let nodeName : any = node.nodeName, nroot;
-    if(typeof nodeName === 'function') return await buildComponent(dom, node, parentComponent, parent);
+    if(typeof nodeName === 'function') return await buildComponent(dom, node, parent);
     if(!dom || dom.nodeName.toLowerCase() !== nodeName.toLowerCase()) {
         out = createNode(nodeName);
         if(dom) {
@@ -71,14 +71,14 @@ async function idiff(dom: any, node: VNode, parentComponent: any, parent: any, r
     }
 
     let fc = out.firstChild, children = node.childNodes;
-    if((children && children.length) || fc) await innerDiffNode(out, children, parentComponent, root);
+    if((children && children.length) || fc) await innerDiffNode(out, children, root);
 
     diffAttributes(out, node.attributes, props);
 
     return out;
 }
 
-async function innerDiffNode(dom, vchildren: Array<VNode>, parentComponent: any, root: boolean) {
+async function innerDiffNode(dom, vchildren: Array<VNode>, root: boolean) {
 	let originalChildren = dom.childNodes,
 		children = Array<any>(),
 		keyed = {},
@@ -133,7 +133,7 @@ async function innerDiffNode(dom, vchildren: Array<VNode>, parentComponent: any,
 			}
 
 			// morph the matched/found/created DOM child to match vchild (deep)
-			child = await idiff(child, vchild, parentComponent, dom, root);
+			child = await idiff(child, vchild, dom, root);
 
 			f = originalChildren[i];
 			if (child && child!==dom && child!==f) {

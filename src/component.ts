@@ -42,13 +42,13 @@ export default class Component {
 
     protected async componentChange(key: string, value: any, previous: any) {
         if(this.shouldComponentUpdate(key,value,previous)) {
-            if(this.renderMode === SYNC) await renderComponent(this, this.parent, this.parentNode);
+            if(this.renderMode === SYNC) await renderComponent(this, this.parentNode);
             else if(this.renderMode === ASYNC) enqueue(this);
         }
     }
 
     async forceUpdate() {
-        await renderComponent(this, this.parent, this.parentNode);
+        await renderComponent(this, this.parentNode);
     }
 
     async componentDidUpdate(previous) : Promise<any> {
@@ -100,14 +100,19 @@ export default class Component {
     }
 }
 
-export async function renderComponent(component: Component, parentComponent: any, parentNode: any) {
-    let isUpdate = component.base, p, props, pbase, rendered, toUnmount, cbase, inst, base, type;
+export async function renderComponent(component: Component, parentNode: any) {
+    let isUpdate = component.base, p, props, rendered, toUnmount, cbase, inst, base, type;
     if(component.disabled) return;
 
     rendered = await component.render();
 
     if(!rendered || Array.isArray(rendered)) {
+        if(component.child) {
+            await unmountComponent(component.child);
+            component.child = null;
+        }
         if(component.base) {
+            component.base._component = null;
             await recollectNodeTree(component.base, false);
             component.base = null;
         }
@@ -115,7 +120,7 @@ export async function renderComponent(component: Component, parentComponent: any
     }
 
     component.parentNode = parentNode;
-    pbase = cbase = base = component.base;
+    cbase = base = component.base;
 
     if(typeof rendered.nodeName === 'function') {
         props = rendered.attributes;
@@ -123,17 +128,22 @@ export async function renderComponent(component: Component, parentComponent: any
         if(inst && inst.constructor === rendered.nodeName) {
             const update = prepareRender(inst, props, rendered.childNodes);
             if(update._different) {
-                await renderComponent(inst, component, inst.parentNode);
+                await renderComponent(inst, inst.parentNode);
                 await inst.componentDidUpdate(update);
             }
         }
         else {
             toUnmount = inst; type = rendered.nodeName;
-            if(!toUnmount && cbase) await recollectNodeTree(cbase, false);
+
+            if(cbase && !toUnmount) {
+                cbase._component = null;
+                await recollectNodeTree(cbase, false);
+            }
+
             component.child = inst = new type(props, component);
             inst.children = rendered.childNodes;
             if(inst.ref) inst.ref(inst);
-            await renderComponent(inst, component, component.parentNode);
+            await renderComponent(inst, component.parentNode);
         }
 
         base = inst.base;
@@ -141,7 +151,7 @@ export async function renderComponent(component: Component, parentComponent: any
     if(typeof rendered.nodeName !== 'function') {
         toUnmount = component.child;
         if(toUnmount) cbase = component.child = null;
-        base = await diff(cbase, rendered, component, component.parentNode, true);
+        base = await diff(cbase, rendered, component.parentNode, true);
     }
 
     if(cbase && base !== cbase && inst !== component.child) {
@@ -150,7 +160,7 @@ export async function renderComponent(component: Component, parentComponent: any
             p.replaceChild(base, cbase);
 
             if(!toUnmount) {
-                base._component = null;
+                cbase._component = null;
                 await recollectNodeTree(cbase, false);
             }
         }
@@ -210,7 +220,7 @@ export async function unmountComponent(component: Component) {
     if(component.ref) component.ref(null);
 }
 
-export async function buildComponent(dom: any, node: VNode, parentComponent: any, parentNode: any) {
+export async function buildComponent(dom: any, node: VNode, parentNode: any) {
     let c = dom && dom._component,
         isDirectOwner = c && c.constructor === node.nodeName,
         props = node.attributes,
@@ -219,7 +229,7 @@ export async function buildComponent(dom: any, node: VNode, parentComponent: any
     if(isDirectOwner && c) {
         const update = prepareRender(c, props, node.childNodes);
         if(update._different) {
-            await renderComponent(c, parentComponent, parentNode);
+            await renderComponent(c, parentNode);
             await c.componentDidUpdate(update);
         }
         dom = c.base;
@@ -229,7 +239,7 @@ export async function buildComponent(dom: any, node: VNode, parentComponent: any
         c = new type(props, null);
         c.children = node.childNodes;
         if(c.ref) c.ref(c);
-        await renderComponent(c, parentComponent, parentNode);
+        await renderComponent(c, parentNode);
         dom = c.base;
     }
     

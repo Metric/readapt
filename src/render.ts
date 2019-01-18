@@ -10,12 +10,12 @@ export function enqueue(component: Component) {
     (component.asyncMethod || DEFER_PROMISE)(async () => {
         let p, list = renderQueue;
         renderQueue = Array<Component>(0);           
-        while((p = list.pop())) await renderComponent(p, p.parent, p.parentNode);
+        while((p = list.pop())) await renderComponent(p, p.parentNode);
     });
 }
 export async function hydrate(node: VNode, parent: any) {
     return await render(node, parent, parent.firstElementChild);
 }
 export async function render(node: VNode, parent: any, merge: any) {
-    return await diff(merge, node, null, parent, true);
+    return await diff(merge, node, parent, true);
 }
