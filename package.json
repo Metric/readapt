@@ -1,0 +1,30 @@
+{
+  "name": "readapt",
+  "version": "1.0.0",
+  "description": "Readapt",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "lodash": "^4.17.14",
+    "ts-loader": "^4.5.0",
+    "typescript": "^2.9.2",
+    "webpack": "^4.39.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Metric/readapt.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Metric/readapt/issues"
+  },
+  "homepage": "https://github.com/Metric/readapt#readme"
+}
