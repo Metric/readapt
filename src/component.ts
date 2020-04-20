@@ -190,13 +190,11 @@ export function prepareRender(inst: Component, props: any, children: Array<any>)
 
     inst.disabled = true;
     for(let n in props) {
-        if(inst[n] !== undefined) {
-            if(inst[n] !== props[n]) {
-                diff[n] = inst[n];
-                diff._different = true;
-            }
-            inst[n] = props[n];
-        }
+		if(inst[n] !== props[n]) {
+			diff[n] = inst[n];
+			diff._different = true;
+		}
+		inst[n] = props[n];
     }
     inst.disabled = false;
 

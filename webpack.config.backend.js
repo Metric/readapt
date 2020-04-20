@@ -3,6 +3,7 @@
 const path = require('path');
 
 module.exports = exports = {
+	mode: 'production',
     entry: path.resolve(__dirname, 'src/server.js'),
     target: 'node',
     output: {

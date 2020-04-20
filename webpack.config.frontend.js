@@ -3,6 +3,7 @@
 const path = require('path');
 
 module.exports = exports = {
+	mode: 'development',
     entry: path.resolve(__dirname, 'src/client.js'),
     devtool: 'inline-source-map',
     output: {
