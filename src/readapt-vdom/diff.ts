@@ -53,7 +53,7 @@ async function idiff(dom: any, node: VNode, parent: any, root: boolean) {
     }
 
     let nodeName : any = node.nodeName, nroot;
-    if(typeof nodeName === 'function') return await buildComponent(dom, node, parent);
+    if(typeof nodeName === 'function') return await buildComponent(dom, node, parent, hydrating);
     if(!dom || dom.nodeName.toLowerCase() !== nodeName.toLowerCase()) {
         out = createNode(nodeName);
         if(dom) {

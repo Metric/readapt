@@ -1,9 +1,5 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const {h, Readapt, Component} = require('../dist/readapt.server.min');
-
 class ProductCategoryRow extends Component {
     constructor(o, parent, renderMode) {
         super(o, parent, renderMode);
@@ -23,7 +19,9 @@ class ProductRow extends Component {
 
     async render() {
         const product = this.product;
-        const name = product.stocked ? product.name : h('span', {style: 'color:red;'}, product.name);
+        const name = product.stocked ? product.name : h('span', {style: {
+            color: 'red'   
+        }}, product.name);
 
         return h('tr', {},
             h('td', {}, name),
@@ -121,21 +119,25 @@ class FilterableProductTable extends Component {
     constructor(o, parent, renderMode) {
         super(o, parent, renderMode);
 
+        this.renderMode = 3;
         this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
         this.handleInStockChange = this.handleInStockChange.bind(this);
+        this.state = {filterText: '', inStockOnly: false};
     }
 
     handleFilterTextChange(filterText) {
-        this.filterText = filterText;
+        this.setState({filterText: filterText})
+        //this.filterText = filterText;
     }
 
     handleInStockChange(inStockOnly) {
-        this.inStockOnly = inStockOnly;
+        this.setState({inStockOnly: inStockOnly});
+        //this.inStockOnly = inStockOnly;
     }
 
     async render() {
-        return h(SearchBar, {filterText: this.filterText, inStockOnly: this.inStockOnly, onInStockChange: this.handleInStockChange, onFilterTextChange: this.handleFilterTextChange }, 
-            h(ProductTable, {products: this.products, filterText: this.filterText, inStockOnly: this.inStockOnly})
+        return h(SearchBar, {filterText: this.state.filterText, inStockOnly: this.state.inStockOnly, onInStockChange: this.handleInStockChange, onFilterTextChange: this.handleFilterTextChange }, 
+            h(ProductTable, {products: this.products, filterText: this.state.filterText, inStockOnly: this.state.inStockOnly})
         );
     }
 }
@@ -150,13 +152,11 @@ const products = [
 ];
 
 
-const f = async () => {
-const start = Date.now(); 
-    const el = await Readapt.render(h(FilterableProductTable, {products: products, inStockOnly: false, filterText: ''}), null, null);
-    const content = Readapt.renderToString(el);
-    console.log('start: ' + (Date.now() - start));
-
-    fs.writeFileSync(path.join(__dirname, 'test.html'), content);
-}
-
-f();
+const start = Date.now();
+document.querySelectorAll('.app')
+    .forEach((e) => {
+        Readapt.hydrate(
+            h(FilterableProductTable, {products: products}), 
+            e);
+    });
+console.log('start: ' + (Date.now() - start));

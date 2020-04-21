@@ -5,7 +5,7 @@ class ProductCategoryRow extends Component {
         super(o, parent, renderMode);
     }
 
-    render() {
+    async render() {
         const category = this.category;
         return h('tr', {}, 
             h('th', {colspan:"2"}, category));
@@ -17,7 +17,7 @@ class ProductRow extends Component {
         super(o, parent, renderMode);
     }
 
-    render() {
+    async render() {
         const product = this.product;
         const name = product.stocked ? product.name : h('span', {style: {
             color: 'red'   
@@ -34,7 +34,7 @@ class TableHeader extends Component {
         super(o, parent, renderMode);
     }
 
-    render() {
+    async render() {
         return h('thead', {} ,
             h('tr', {}, 
                 h('td', {}, 'Name'), 
@@ -47,7 +47,7 @@ class ProductTable extends Component {
         super(o, parent, renderMode);
     }
 
-    render() {
+    async render() {
         const filterText = this.filterText;
         const inStockOnly = this.inStockOnly;
 
@@ -100,7 +100,7 @@ class SearchBar extends Component {
         }
     }
 
-    render() {
+    async render() {
         const filterText = this.filterText;
         const inStockOnly = this.inStockOnly;
 
@@ -109,7 +109,8 @@ class SearchBar extends Component {
             h('label', {onclick: this.handleInStockChange}, 
                 h('input', {type: 'checkbox', checked: inStockOnly}),
                 'Only show products in stock'
-            )
+            ),
+            this.children
         );
     }
 }
@@ -122,10 +123,6 @@ class FilterableProductTable extends Component {
         this.handleInStockChange = this.handleInStockChange.bind(this);
     }
 
-    beforeRender() {
-
-    }
-
     handleFilterTextChange(filterText) {
         this.filterText = filterText;
     }
@@ -134,7 +131,7 @@ class FilterableProductTable extends Component {
         this.inStockOnly = inStockOnly;
     }
 
-    render() {
+    async render() {
         return h(SearchBar, {filterText: this.filterText, inStockOnly: this.inStockOnly, onInStockChange: this.handleInStockChange, onFilterTextChange: this.handleFilterTextChange }, 
             h(ProductTable, {products: this.products, filterText: this.filterText, inStockOnly: this.inStockOnly})
         );
@@ -154,7 +151,7 @@ const products = [
 const start = Date.now();
 document.querySelectorAll('.app')
     .forEach((e) => {
-        ReAdapt.hydrate(
+        Readapt.hydrate(
             h(FilterableProductTable, {products: products, inStockOnly: false, filterText: ''}), 
             e);
     });

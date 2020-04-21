@@ -23,6 +23,7 @@ export function isSameNodeType(node: any, vnode: any, hydrating: boolean) {
 
 export function setAccessor(node, name, old, value) {
     if(name === 'className') name = 'class';
+    if(name === '__html') name = 'html';
     if(name === 'key') {
         //do nothing
     }
@@ -30,6 +31,9 @@ export function setAccessor(node, name, old, value) {
         if(old) old(null);
         if(value) value(node);
     }
+    //please for the love of god
+    //never use this unless you really have to
+    //for showing mark down or something similar
     else if(name === 'html') {
         if(old !== value) {
             node.innerHTML = value;
@@ -52,10 +56,7 @@ export function setAccessor(node, name, old, value) {
         }
     }
     else if(name === 'style') {
-        if(!value || typeof value === 'string' || typeof old === 'string') {
-            node.style.cssText = value || '';
-        }
-        else if(value && typeof value === 'object') {
+        if(value && typeof value === 'object') {
             if(typeof old === 'object') {
                 for(let i in old) {
                     if (!(i in value)) node.style[i] = '';
@@ -63,6 +64,9 @@ export function setAccessor(node, name, old, value) {
             }
             else node.style.cssText = '';
             for(let i in value) node.style[i] = value[i] || '';
+        }
+        else if(!value || typeof value === 'string' || typeof old === 'string') {
+            node.style.cssText = value || '';
         }
     }
     else if(name[0] === 'o' && name[1] === 'n') {
