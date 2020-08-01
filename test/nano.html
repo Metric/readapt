@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+
+        <title>basic test</title>
+        <meta name="description" content="basic input test" />
+        <meta name="author" content="Flix" />
+        <style rel="stylesheet">
+            .active {
+                background-color: red;
+            }
+            .inactive {
+                background-color: lightgray;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <img id="previewStar" src="http://134.122.120.225:9000/star" />
+            <img id="previewSun" src="http://134.122.120.225:9000/sun" />
+            <input id="fileinput" type="file" accept="image/jpeg,image/jpg" />
+            <button onclick="sendStyle();">Stylize!</button>
+        </div>
+        <script src="../dist/readapt.min.js"></script>
+        <script>
+            let selectedFile = null;
+            const pstar = document.getElementById("previewStar");
+            const psun = document.getElementById("previewSun");
+            const finput = document.getElementById("fileinput");
+            finput.addEventListener("change", (e) => {
+                selectedFile = e.target.files[0];
+            });
+            function sendStyle() {
+                if (!selectedFile) {
+                    return;
+                }
+
+                const req = new XMLHttpRequest();
+                req.open("POST", "http://134.122.120.225:9000", true);
+                req.addEventListener("load", (e) => {
+                    pstar.setAttribute("src", `http://134.122.120.225:9000/star?time=${Date.now()}`);
+                    psun.setAttribute("src", `http://134.122.120.225:9000/sun?time=${Date.now()}`);
+                });
+                req.send(selectedFile);
+            }
+        </script>
+    </body>
+</html>
