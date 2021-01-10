@@ -140,11 +140,9 @@ async function innerDiffNode(dom, vchildren: Array<VNode>, root: boolean) {
 				if (f==null) {
 					dom.appendChild(child);
 				}
-				else if (child===f.nextSibling) {
-					removeNode(f);
-				}
 				else {
 					dom.insertBefore(child, f);
+					removeNode(f);
 				}
 			}
 		}
