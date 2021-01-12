@@ -72,10 +72,8 @@ export function setAccessor(node, name, old, value) {
     else if(name[0] === 'o' && name[1] === 'n') {
         let useCapture = name !== (name = name.replace(/Capture$/, ''));
         name = name.toLowerCase().substring(2);
-        if(value) {
-            if(!old) node.addEventListener(name, value, useCapture);
-        }
-        else if(old) node.removeEventListener(name, old, useCapture);
+        if (value !== old && old && typeof old === 'function') node.removeEventListener(name, old, useCapture);
+        if (value && value !== old && typeof value === 'function') node.addEventListener(name, value, useCapture);
     }
     else if(name !== 'list' && name !== 'type' && name in node) {
         try {
