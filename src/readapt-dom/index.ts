@@ -28,8 +28,8 @@ export function setAccessor(node, name, old, value) {
         //do nothing
     }
     else if(name === 'ref') {
-        if(old) old(null);
-        if(value) value(node);
+        if(old && typeof(old) === 'function') old(null);
+        if(value && typeof(value) === 'function') value(node);
     }
     //please for the love of god
     //never use this unless you really have to

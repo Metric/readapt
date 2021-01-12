@@ -181,7 +181,7 @@ export async function removeChildren(node: any) {
 function diffAttributes(dom: any, attrs: any, old: any) {
     let name;
     for(name in old) {
-        if(!(attrs && attrs[name] != null) && old[name] != null) setAccessor(dom, name, old, old[name] = undefined);
+        if(!(attrs && attrs[name] != null) && old[name] != null) setAccessor(dom, name, old[name], old[name] = undefined);
     }
     for(name in attrs) {
         if(name !== 'children' && name !== 'innerHTML' 
